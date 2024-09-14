@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack | Login/Signup</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+        :root {
+            --primary-color: #0a0a0a;
+            --primary-color-light: #1a1a1a;
+            --primary-color-extra-light: #2a2a2a;
+            --secondary-color: #4caf50;
+            --secondary-color-dark: #45a049;
+            --text-light: #d1d5db;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .auth-container {
+            background-color: var(--primary-color-light);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-header {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .auth-header h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-form {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--primary-color-extra-light);
+            border-radius: 5px;
+            background-color: var(--primary-color-extra-light);
+            color: var(--white);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--secondary-color-dark);
+        }
+
+        .auth-switch {
+            margin-top: 1rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .auth-switch a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2 id="authTitle">Login</h2>
+            <p>Welcome to FitTrack</p>
+        </div>
+        <form class="auth-form" id="authForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword">
+            </div>
+            <button type="submit" class="auth-btn" id="authBtn">Login</button>
+        </form>
+        <div class="auth-switch">
+            <p>Don't have an account? <a href="#" id="switchAuth">Sign Up</a></p>
+        </div>
+    </div>
+
+    <script>
+        const authTitle = document.getElementById('authTitle');
+        const authForm = document.getElementById('authForm');
+        const authBtn = document.getElementById('authBtn');
+        const switchAuth = document.getElementById('switchAuth');
+        const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+        let isLogin = true;
+
+        // Check if there's a saved email in localStorage
+        const savedEmail = localStorage.getItem('userEmail');
+        if (savedEmail) {
+            emailInput.value = savedEmail;
+        }
+
+        switchAuth.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLogin = !isLogin;
+            authTitle.textContent = isLogin ? 'Login' : 'Sign Up';
+            authBtn.textContent = isLogin ? 'Login' : 'Sign Up';
+            switchAuth.textContent = isLogin ? 'Sign Up' : 'Login';
+            confirmPasswordGroup.style.display = isLogin ? 'none' : 'block';
+            authForm.reset();
+            
+            // Restore saved email if switching back to login
+            if (isLogin && savedEmail) {
+                emailInput.value = savedEmail;
+            }
+        });
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            if (!isLogin) {
+                const confirmPassword = confirmPasswordInput.value;
+                if (password !== confirmPassword) {
+                    alert("Passwords don't match!");
+                    return;
+                }
+            }
+
+            // Save email to localStorage
+            localStorage.setItem('userEmail', email);
+
+            // Save auth state to sessionStorage
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userEmail', email);
+
+            // Simulate login/signup success
+            alert(`${isLogin ? 'Login' : 'Sign Up'} successful!`);
+            
+            // Redirect to home page (you can change this to your actual home page URL)
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

@@ -21,7 +21,7 @@
         <li class="link"><a href="#about">About</a></li>
         <li class="link"><a href="#testimonials">Testimonials</a></li>
       </ul>
-      <button class="btn login__btn">Login</button>
+      <button id="loginBtn" class="btn login__btn" >Login</button>
     </nav>
 
     <header id="home" class="section__container header__container">
@@ -145,27 +145,14 @@
           <a href="#"><i class="ri-twitter-fill"></i></a>
         </div>
       </div>
-      <div class="footer__col">
-        <h4>Company</h4>
-        <a href="#">About Us</a>
-        <a href="#">Careers</a>
-        <a href="#">Press</a>
-      </div>
-      <div class="footer__col">
-        <h4>Resources</h4>
-        <a href="#">Blog</a>
-        <a href="#">Help Center</a>
-        <a href="#">Contact Us</a>
-      </div>
-      <div class="footer__col">
-        <h4>Legal</h4>
-        <a href="#">Terms of Service</a>
-        <a href="#">Privacy Policy</a>
-        <a href="#">Cookie Policy</a>
-      </div>
     </footer>
     <div class="footer__bar">
       Copyright © 2024 FitTrack. All rights reserved.
     </div>
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', function() {
+          window.location.href = 'auth.html';
+        });
+    </script>
   </body>
 </html>
