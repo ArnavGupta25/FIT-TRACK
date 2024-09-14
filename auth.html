@@ -145,65 +145,6 @@
         </div>
     </div>
 
-    <script>
-        const authTitle = document.getElementById('authTitle');
-        const authForm = document.getElementById('authForm');
-        const authBtn = document.getElementById('authBtn');
-        const switchAuth = document.getElementById('switchAuth');
-        const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-
-        let isLogin = true;
-
-        // Check if there's a saved email in localStorage
-        const savedEmail = localStorage.getItem('userEmail');
-        if (savedEmail) {
-            emailInput.value = savedEmail;
-        }
-
-        switchAuth.addEventListener('click', (e) => {
-            e.preventDefault();
-            isLogin = !isLogin;
-            authTitle.textContent = isLogin ? 'Login' : 'Sign Up';
-            authBtn.textContent = isLogin ? 'Login' : 'Sign Up';
-            switchAuth.textContent = isLogin ? 'Sign Up' : 'Login';
-            confirmPasswordGroup.style.display = isLogin ? 'none' : 'block';
-            authForm.reset();
-            
-            // Restore saved email if switching back to login
-            if (isLogin && savedEmail) {
-                emailInput.value = savedEmail;
-            }
-        });
-
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = emailInput.value;
-            const password = passwordInput.value;
-
-            if (!isLogin) {
-                const confirmPassword = confirmPasswordInput.value;
-                if (password !== confirmPassword) {
-                    alert("Passwords don't match!");
-                    return;
-                }
-            }
-
-            // Save email to localStorage
-            localStorage.setItem('userEmail', email);
-
-            // Save auth state to sessionStorage
-            sessionStorage.setItem('isLoggedIn', 'true');
-            sessionStorage.setItem('userEmail', email);
-
-            // Simulate login/signup success
-            alert(`${isLogin ? 'Login' : 'Sign Up'} successful!`);
-            
-            // Redirect to home page (you can change this to your actual home page URL)
-            window.location.href = 'index.html';
-        });
-    </script>
+    <script src="auth.js"></script>
 </body>
 </html>
