@@ -1,28 +1,45 @@
-const authTitle = document.getElementById('authTitle');
-const authForm = document.getElementById('authForm');
-const authBtn = document.getElementById('authBtn');
-const switchAuth = document.getElementById('switchAuth');
-const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const confirmPasswordInput = document.getElementById('confirmPassword');
+const authTitle = document.getElementById("authTitle");
+const authForm = document.getElementById("authForm");
+const authBtn = document.getElementById("authBtn");
+const switchAuth = document.getElementById("switchAuth");
+const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
+const togglePassword = document.getElementById("togglePassword");
+const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
 
 let isLogin = true;
 
-const savedEmail = localStorage.getItem('userEmail');
-if (savedEmail) {
-    emailInput.value = savedEmail;
-}
+emailInput.value = "";
 
-const isSignedUp = localStorage.getItem('isSignedUp') === 'true';
-const savedPassword = localStorage.getItem('userPassword');
+const isSignedUp = localStorage.getItem("isSignedUp") === "true";
+const savedPassword = localStorage.getItem("userPassword");
 
-switchAuth.addEventListener('click', (e) => {
+switchAuth.addEventListener("click", (e) => {
     e.preventDefault();
     toggleAuth();
 });
 
-authForm.addEventListener('submit', (e) => {
+togglePassword.addEventListener("click", () => {
+    togglePasswordVisibility(passwordInput, togglePassword);
+});
+
+toggleConfirmPassword.addEventListener("click", () => {
+    togglePasswordVisibility(confirmPasswordInput, toggleConfirmPassword);
+});
+
+function togglePasswordVisibility(inputField, toggleIcon) {
+    const isPasswordVisible = inputField.type === "password";
+
+    inputField.type = isPasswordVisible ? "text" : "password";
+
+    toggleIcon.innerHTML = isPasswordVisible
+        ? '<i class="ri-eye-off-line"></i>'
+        : '<i class="ri-eye-line"></i>';
+}
+
+authForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const email = emailInput.value;
     const password = passwordInput.value;
@@ -48,16 +65,18 @@ authForm.addEventListener('submit', (e) => {
             return;
         }
 
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('userEmail', email);
-        alert('Login successful!');
+        sessionStorage.setItem("isLoggedIn", "true");
+        sessionStorage.setItem("userEmail", email);
+        alert("Login successful!");
         resetFields();
-        window.location.href = 'dashboard.html';
+        window.location.href = "dashboard.html";
     } else {
         const confirmPassword = confirmPasswordInput.value;
 
         if (!isStrongPassword(password)) {
-            alert("Password must be at least 8 characters long, with at least one uppercase letter, one digit, and one special character.");
+            alert(
+                "Password must be at least 8 characters long, with at least one uppercase letter, one digit, and one special character."
+            );
             resetFields();
             return;
         }
@@ -68,36 +87,46 @@ authForm.addEventListener('submit', (e) => {
             return;
         }
 
-        localStorage.setItem('isSignedUp', 'true');
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('userPassword', password);
+        localStorage.setItem("isSignedUp", "true");
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("userPassword", password);
 
-        alert('Sign Up successful!');
+        alert("Sign Up successful!");
         resetFields();
         window.location.reload();
     }
 });
 
 function isStrongPassword(password) {
-    const strongPasswordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const strongPasswordRegex =
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return strongPasswordRegex.test(password);
 }
 
 function toggleAuth(toLogin = !isLogin) {
     isLogin = toLogin;
-    authTitle.textContent = isLogin ? 'Login' : 'Sign Up';
-    authBtn.textContent = isLogin ? 'Login' : 'Sign Up';
-    switchAuth.textContent = isLogin ? 'Sign Up' : 'Login';
-    confirmPasswordGroup.style.display = isLogin ? 'none' : 'block';
-    authForm.reset();
+    authTitle.textContent = isLogin ? "Login" : "Sign Up";
+    authBtn.textContent = isLogin ? "Login" : "Sign Up";
+    switchAuth.textContent = isLogin ? "Sign Up" : "Login";
+    confirmPasswordGroup.style.display = isLogin ? "none" : "block";
 
-    if (isLogin && savedEmail) {
-        emailInput.value = savedEmail;
+
+    passwordInput.type = 'password';
+    confirmPasswordInput.type = 'password';
+
+    togglePassword.innerHTML = '<i class="ri-eye-line"></i>';
+    toggleConfirmPassword.innerHTML = '<i class="ri-eye-line"></i>';
+
+
+    if (isLogin) {
+        emailInput.value = "";
     }
+
+    authForm.reset();
 }
 
 function resetFields() {
-    emailInput.value = '';
-    passwordInput.value = '';
-    confirmPasswordInput.value = '';
+    emailInput.value = "";
+    passwordInput.value = "";
+    confirmPasswordInput.value = "";
 }
