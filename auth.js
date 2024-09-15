@@ -74,7 +74,7 @@ authForm.addEventListener('submit', (e) => {
 
         alert('Sign Up successful!');
         resetFields();
-        toggleAuth(true);
+        window.location.reload();
     }
 });
 

@@ -3,9 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>FitTrack | Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="assets/fi.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    abc
+    <nav>
+        <div class="nav__logo">
+            <a href="index.html"><img src="assets/logo.png" alt="FitTrack logo" /></a>
+        </div>
+        <ul class="nav__links">
+            <li class="link"><a href="#overview">Overview</a></li>
+            <li class="link"><a href="#activity">Activity</a></li>
+            <li class="link"><a href="#nutrition">Nutrition</a></li>
+        </ul>
+        <button id="logoutBtn" class="btn logout__btn">Logout</button>
+    </nav>
+
+    <div class="dashboard__container">
+        <header>
+            <h1>Welcome to Your Dashboard</h1>
+            <p id="userGreeting"></p>
+        </header>
+
+        <section id="overview" class="dashboard__section">
+            <h2>Overview</h2>
+            <div class="overview__cards">
+                <div class="overview__card">
+                    <h3>Steps</h3>
+                    <p id="totalSteps">0</p>
+                </div>
+                <div class="overview__card">
+                    <h3>Calories Burned</h3>
+                    <p id="totalCaloriesBurned">0</p>
+                </div>
+                <div class="overview__card">
+                    <h3>Active Minutes</h3>
+                    <p id="totalActiveMinutes">0</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="activity" class="dashboard__section">
+            <h2>Activity Tracking</h2>
+            <form id="activityForm">
+                <input type="number" id="steps" placeholder="Steps" required>
+                <input type="number" id="caloriesBurned" placeholder="Calories Burned" required>
+                <input type="number" id="activeMinutes" placeholder="Active Minutes" required>
+                <button type="submit" class="btn">Add Activity</button>
+            </form>
+            <div class="chart__container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </section>
+
+        <section id="nutrition" class="dashboard__section">
+            <h2>Nutrition Logger</h2>
+            <form id="nutritionForm">
+                <input type="text" id="mealName" placeholder="Meal Name" required>
+                <input type="number" id="calories" placeholder="Calories" required>
+                <button type="submit" class="btn">Add Meal</button>
+            </form>
+            <div id="mealList"></div>
+            <div class="chart__container">
+                <canvas id="nutritionChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <script src="dashboard.js"></script>
 </body>
 </html>
