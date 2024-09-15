@@ -286,7 +286,7 @@ nav {
   gap: 2rem;
 }
 
-.review__container > span {
+.review__container>span {
   font-size: 6rem;
   color: var(--secondary-color);
   opacity: 0.5;
@@ -337,12 +337,12 @@ nav {
 }
 
 .footer__container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  text-align: center;
 }
 
 .footer__blur {
@@ -387,14 +387,14 @@ nav {
   color: var(--white);
 }
 
-.footer__col > a {
+.footer__col>a {
   display: block;
   margin-bottom: 1rem;
   color: var(--text-light);
   transition: 0.3s;
 }
 
-.footer__col > a:hover {
+.footer__col>a:hover {
   color: var(--secondary-color);
 }
 
