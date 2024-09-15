@@ -20,13 +20,15 @@ const activitiesList = document.getElementById('activitiesList');
 const activityChartCtx = document.getElementById('activityChart').getContext('2d');
 const nutritionChartCtx = document.getElementById('nutritionChart').getContext('2d');
 
-let activityChart; // Define chart variables
+let activityChart;
 let nutritionChart;
 
-// Load data
 function loadData() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const meals = JSON.parse(localStorage.getItem('meals')) || [];
+    const userEmail = sessionStorage.getItem('userEmail');
+
+    userGreeting.textContent = `Welcome, ${userEmail}!`;
 
     // Overview
     const totalSteps = activities.reduce((sum, activity) => sum + activity.steps, 0);
@@ -182,43 +184,73 @@ function populateActivitiesList() {
         const activityItem = document.createElement('li');
         activityItem.innerHTML = `
             <span>${new Date(activity.date).toLocaleDateString()} - Steps: ${activity.steps}, Calories: ${activity.caloriesBurned}, Active Minutes: ${activity.activeMinutes}</span>
-            <button class="btn edit-btn" onclick="editActivity(${index})">Edit</button>
-            <button class="btn delete-btn" onclick="deleteActivity(${index})">Delete</button>
+            <div class="btn-group">
+                <button class="btn edit-btn" onclick="openEditPopup(${index})">Edit</button>
+                <button class="btn delete-btn" onclick="deleteActivity(${index})">Delete</button>
+            </div>
         `;
         activitiesList.appendChild(activityItem);
     });
 }
 
-function editActivity(index) {
+function openEditPopup(index) {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const activity = activities[index];
 
-    // Pre-fill the form with the existing data
-    stepsInput.value = activity.steps;
-    caloriesBurnedInput.value = activity.caloriesBurned;
-    activeMinutesInput.value = activity.activeMinutes;
+    const editPopup = document.createElement('div');
+    editPopup.className = 'popup';
+    editPopup.id = 'editActivityPopup';
+    editPopup.innerHTML = `
+        <div class="popup-content">
+            <h3>Edit Activity</h3>
+            <form id="editActivityForm">
+                <input type="number" id="editSteps" value="${activity.steps}" required>
+                <input type="number" id="editCaloriesBurned" value="${activity.caloriesBurned}" required>
+                <input type="number" id="editActiveMinutes" value="${activity.activeMinutes}" required>
+                <button type="submit" class="btn">Save Changes</button>
+                <button type="button" class="btn" onclick="closeEditPopup()">Cancel</button>
+            </form>
+        </div>
+    `;
 
-    // Update the form submission to handle editing
-    activityForm.onsubmit = function (e) {
+    document.body.appendChild(editPopup);
+    editPopup.style.display = 'flex';
+
+    const editActivityForm = document.getElementById('editActivityForm');
+    editActivityForm.onsubmit = function (e) {
         e.preventDefault();
-        const steps = parseInt(stepsInput.value);
-        const caloriesBurned = parseInt(caloriesBurnedInput.value);
-        const activeMinutes = parseInt(activeMinutesInput.value);
+        const steps = parseInt(document.getElementById('editSteps').value);
+        const caloriesBurned = parseInt(document.getElementById('editCaloriesBurned').value);
+        const activeMinutes = parseInt(document.getElementById('editActiveMinutes').value);
 
         activities[index] = { steps, caloriesBurned, activeMinutes, date: new Date().toISOString() };
         localStorage.setItem('activities', JSON.stringify(activities));
-        activityForm.reset();
-        loadData();  // Refresh the UI and charts
-        manageActivitiesPopup.style.display = 'none';  // Close the popup
+        loadData();
+        populateActivitiesList();
+        closeEditPopup();
     };
+}
+
+function closeEditPopup() {
+    const editPopup = document.getElementById('editActivityPopup');
+    if (editPopup) {
+        editPopup.remove();
+    }
 }
 
 function deleteActivity(index) {
     let activities = JSON.parse(localStorage.getItem('activities')) || [];
     activities.splice(index, 1);
     localStorage.setItem('activities', JSON.stringify(activities));
-    loadData();  // Refresh the UI and charts
+    loadData();
+    populateActivitiesList();
 }
 
 // Load data initially
 loadData();
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('userEmail');
+    window.location.href = 'index.html';
+});
