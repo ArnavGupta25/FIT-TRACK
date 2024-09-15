@@ -1,0 +1,235 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+:root {
+    --primary-color: #0a0a0a;
+    --primary-color-light: #1a1a1a;
+    --primary-color-extra-light: #2a2a2a;
+    --secondary-color: #4caf50;
+    --secondary-color-dark: #45a049;
+    --text-light: #d1d5db;
+    --white: #ffffff;
+    --max-width: 1200px;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.dashboard__container {
+    max-width: var(--max-width);
+    margin: auto;
+    padding: 2rem 1rem;
+}
+
+nav {
+    max-width: var(--max-width);
+    margin: auto;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--primary-color-light);
+}
+
+.nav__logo img {
+    max-width: 120px;
+}
+
+.nav__links {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+}
+
+.link a {
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.link a:hover {
+    color: var(--secondary-color);
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color-dark);
+    transform: scale(1.05);
+}
+
+header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.dashboard__section {
+    background-color: var(--primary-color-light);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.overview__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.overview__card {
+    background-color: var(--primary-color-extra-light);
+    border-radius: 5px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.overview__card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color);
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+input {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.5rem;
+    border: 1px solid var(--primary-color-extra-light);
+    border-radius: 5px;
+    background-color: var(--primary-color-extra-light);
+    color: var(--white);
+}
+
+.chart__container {
+    background-color: var(--primary-color-extra-light);
+    border-radius: 5px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+#mealList {
+    margin-top: 1rem;
+}
+
+.meal-item {
+    background-color: var(--primary-color-extra-light);
+    border-radius: 5px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.meal-item button {
+    background-color: #ff4444;
+    color: var(--white);
+    border: none;
+    border-radius: 3px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.meal-item button:hover {
+    background-color: #cc0000;
+}
+
+/* Popup styling */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-content {
+    background-color: var(--primary-color-light);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+}
+
+.popup-content h3 {
+    margin-bottom: 1rem;
+}
+
+.popup-content ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.popup-content li {
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-content button {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.popup-content button:hover {
+    background-color: var(--secondary-color-dark);
+    transform: scale(1.05);
+}
+
+/* Specific styling for delete button in popup */
+.popup-content .delete-btn {
+    background-color: #ff4444;
+}
+
+.popup-content .delete-btn:hover {
+    background-color: #cc0000;
+}
+
+
+@media (max-width: 768px) {
+    .nav__links {
+        display: none;
+    }
+
+    form {
+        flex-direction: column;
+    }
+
+    input {
+        width: 100%;
+    }
+}

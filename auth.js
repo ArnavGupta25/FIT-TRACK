@@ -14,6 +14,7 @@ let isLogin = true;
 emailInput.value = "";
 
 const isSignedUp = localStorage.getItem("isSignedUp") === "true";
+const savedEmail = localStorage.getItem("userEmail"); 
 const savedPassword = localStorage.getItem("userPassword");
 
 switchAuth.addEventListener("click", (e) => {

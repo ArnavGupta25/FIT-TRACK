@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="dashboard.css">
     <link rel="icon" href="assets/fi.png" type="image/x-icon">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -56,6 +55,7 @@
                 <input type="number" id="activeMinutes" placeholder="Active Minutes" required>
                 <button type="submit" class="btn">Add Activity</button>
             </form>
+            <button id="manageActivitiesBtn" class="btn">Manage Activities</button>
             <div class="chart__container">
                 <canvas id="activityChart"></canvas>
             </div>
@@ -75,6 +75,16 @@
         </section>
     </div>
 
+    <!-- Popup for managing activities -->
+    <div id="manageActivitiesPopup" class="popup">
+        <div class="popup-content">
+            <h3>Manage Activities</h3>
+            <ul id="activitiesList"></ul>
+            <button id="closePopupBtn" class="btn">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="dashboard.js"></script>
 </body>
 
