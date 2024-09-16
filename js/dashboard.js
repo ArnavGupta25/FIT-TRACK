@@ -7,11 +7,9 @@ if (sessionStorage.getItem('isLoggedIn') !== 'true') {
 const userGreeting = document.getElementById('userGreeting');
 const activityForm = document.getElementById('activityForm');
 const nutritionForm = document.getElementById('nutritionForm');
-const goalForm = document.getElementById('goalForm');
 const stepsInput = document.getElementById('steps');
 const caloriesBurnedInput = document.getElementById('caloriesBurned');
 const activeMinutesInput = document.getElementById('activeMinutes');
-const dailyStepGoalInput = document.getElementById('dailyStepGoal');
 const mealNameInput = document.getElementById('mealName');
 const caloriesInput = document.getElementById('calories');
 const mealList = document.getElementById('mealList');
@@ -21,9 +19,10 @@ const closePopupBtn = document.getElementById('closePopupBtn');
 const activitiesList = document.getElementById('activitiesList');
 const activityChartCtx = document.getElementById('activityChart').getContext('2d');
 const nutritionChartCtx = document.getElementById('nutritionChart').getContext('2d');
-const goalAchievement = document.getElementById('goalAchievement');
-const totalStepsSelect = document.getElementById('totalStepsSelect');
-const selectedTotalSteps = document.getElementById('selectedTotalSteps');
+const overviewSelect = document.getElementById('overviewSelect');
+const overviewPeriod = document.getElementById('overviewPeriod');
+const overviewMetricTitle = document.getElementById('overviewMetricTitle');
+const overviewMetricValue = document.getElementById('overviewMetricValue');
 
 let activityChart;
 let nutritionChart;
@@ -32,37 +31,15 @@ function loadData() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const meals = JSON.parse(localStorage.getItem('meals')) || [];
     const userEmail = sessionStorage.getItem('userEmail');
-    const dailyGoal = localStorage.getItem('dailyGoal') || 0;
 
     userGreeting.textContent = `Welcome, ${userEmail}!`;
-    document.getElementById('dailyGoal').textContent = dailyGoal;
 
-    // Overview
-    const totalSteps = activities.reduce((sum, activity) => sum + activity.steps, 0);
-    const totalCaloriesBurned = activities.reduce((sum, activity) => sum + activity.caloriesBurned, 0);
-    const totalActiveMinutes = activities.reduce((sum, activity) => sum + activity.activeMinutes, 0);
-
-    document.getElementById('totalSteps').textContent = totalSteps;
-    document.getElementById('totalCaloriesBurned').textContent = totalCaloriesBurned;
-    document.getElementById('totalActiveMinutes').textContent = totalActiveMinutes;
-
-    // Check if daily goal is achieved
-    const today = new Date().toDateString();
-    const todaySteps = activities
-        .filter(activity => new Date(activity.date).toDateString() === today)
-        .reduce((sum, activity) => sum + activity.steps, 0);
-
-    if (todaySteps >= dailyGoal) {
-        goalAchievement.classList.remove('hidden');
-    } else {
-        goalAchievement.classList.add('hidden');
-    }
+    // Update overview
+    updateOverview();
 
     // Chart data
     const activityLabels = activities.map(activity => new Date(activity.date).toLocaleDateString());
     const activitySteps = activities.map(activity => activity.steps);
-    const activityCalories = activities.map(activity => activity.caloriesBurned);
-    const activityMinutes = activities.map(activity => activity.activeMinutes);
 
     // Destroy existing chart if it exists
     if (activityChart) {
@@ -80,16 +57,6 @@ function loadData() {
                         label: 'Steps',
                         data: activitySteps,
                         backgroundColor: '#4caf50',
-                    },
-                    {
-                        label: 'Calories Burned',
-                        data: activityCalories,
-                        backgroundColor: '#f44336',
-                    },
-                    {
-                        label: 'Active Minutes',
-                        data: activityMinutes,
-                        backgroundColor: '#2196f3',
                     }
                 ]
             },
@@ -97,13 +64,28 @@ function loadData() {
                 responsive: true,
                 plugins: {
                     legend: {
-                        position: 'top'
+                        display: false
                     },
                     tooltip: {
                         callbacks: {
                             label: function (tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
+                                return 'Steps: ' + tooltipItem.raw;
                             }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Steps'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
                         }
                     }
                 }
@@ -149,8 +131,59 @@ function loadData() {
             <button onclick="deleteMeal('${meal.name}')">Delete</button>
         </div>
     `).join('');
+}
 
-    updateTotalSteps();
+function updateOverview() {
+    const activities = JSON.parse(localStorage.getItem('activities')) || [];
+    const metric = overviewSelect.value;
+    const period = overviewPeriod.value;
+    
+    let filteredActivities = filterActivitiesByPeriod(activities, period);
+    let totalValue = calculateTotalForMetric(filteredActivities, metric);
+
+    overviewMetricTitle.textContent = getMetricTitle(metric);
+    overviewMetricValue.textContent = totalValue;
+}
+
+function filterActivitiesByPeriod(activities, period) {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    switch (period) {
+        case 'day':
+            return activities.filter(activity => new Date(activity.date) >= startOfDay);
+        case 'week':
+            return activities.filter(activity => new Date(activity.date) >= startOfWeek);
+        case 'month':
+            return activities.filter(activity => new Date(activity.date) >= startOfMonth);
+        case 'all':
+        default:
+            return activities;
+    }
+}
+
+function calculateTotalForMetric(activities, metric) {
+    return activities.reduce((sum, activity) => sum + activity[getMetricKey(metric)], 0);
+}
+
+function getMetricKey(metric) {
+    switch (metric) {
+        case 'steps': return 'steps';
+        case 'calories': return 'caloriesBurned';
+        case 'active': return 'activeMinutes';
+        default: return 'steps';
+    }
+}
+
+function getMetricTitle(metric) {
+    switch (metric) {
+        case 'steps': return 'Steps';
+        case 'calories': return 'Calories Burned';
+        case 'active': return 'Active Minutes';
+        default: return 'Steps';
+    }
 }
 
 // Add activity
@@ -163,15 +196,6 @@ activityForm.addEventListener('submit', function (e) {
     activities.push({ steps, caloriesBurned, activeMinutes, date: new Date().toISOString() });
     localStorage.setItem('activities', JSON.stringify(activities));
     activityForm.reset();
-    loadData();  // Refresh the UI and charts
-});
-
-// Set daily goal
-goalForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const dailyGoal = parseInt(dailyStepGoalInput.value);
-    localStorage.setItem('dailyGoal', dailyGoal);
-    goalForm.reset();
     loadData();  // Refresh the UI and charts
 });
 
@@ -276,33 +300,9 @@ function deleteActivity(index) {
     populateActivitiesList();
 }
 
-function updateTotalSteps() {
-    const activities = JSON.parse(localStorage.getItem('activities')) || [];
-    const selectedOption = totalStepsSelect.value;
-    let totalSteps = 0;
-
-    switch (selectedOption) {
-        case 'all':
-            totalSteps = activities.reduce((sum, activity) => sum + activity.steps, 0);
-            break;
-        case 'month':
-            const currentMonth = new Date().getMonth();
-            totalSteps = activities
-                .filter(activity => new Date(activity.date).getMonth() === currentMonth)
-                .reduce((sum, activity) => sum + activity.steps, 0);
-            break;
-        case 'day':
-            const today = new Date().toDateString();
-            totalSteps = activities
-                .filter(activity => new Date(activity.date).toDateString() === today)
-                .reduce((sum, activity) => sum + activity.steps, 0);
-            break;
-    }
-
-    selectedTotalSteps.textContent = totalSteps;
-}
-
-totalStepsSelect.addEventListener('change', updateTotalSteps);
+// Event listeners for overview controls
+overviewSelect.addEventListener('change', updateOverview);
+overviewPeriod.addEventListener('change', updateOverview);
 
 // Load data initially
 loadData();

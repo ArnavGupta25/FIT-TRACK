@@ -31,23 +31,22 @@
 
         <section id="overview" class="dashboard__section">
             <h2>Overview</h2>
-            <div class="overview__cards">
-                <div class="overview__card">
-                    <h3>Steps</h3>
-                    <p id="totalSteps">0</p>
-                </div>
-                <div class="overview__card">
-                    <h3>Calories Burned</h3>
-                    <p id="totalCaloriesBurned">0</p>
-                </div>
-                <div class="overview__card">
-                    <h3>Active Minutes</h3>
-                    <p id="totalActiveMinutes">0</p>
-                </div>
-                <div class="overview__card">
-                    <h3>Daily Goal</h3>
-                    <p id="dailyGoal">0</p>
-                </div>
+            <div class="overview__controls">
+                <select id="overviewSelect">
+                    <option value="steps">Steps</option>
+                    <option value="calories">Calories Burned</option>
+                    <option value="active">Active Minutes</option>
+                </select>
+                <select id="overviewPeriod">
+                    <option value="day">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <div class="overview__display">
+                <h3 id="overviewMetricTitle">Steps</h3>
+                <p id="overviewMetricValue">0</p>
             </div>
         </section>
 
@@ -59,22 +58,14 @@
                 <input type="number" id="activeMinutes" placeholder="Active Minutes" required>
                 <button type="submit" class="btn">Add Activity</button>
             </form>
-            <form id="goalForm">
+            <!-- <form id="goalForm">
                 <input type="number" id="dailyStepGoal" placeholder="Set Daily Step Goal" required>
                 <button type="submit" class="btn">Set Goal</button>
-            </form>
+            </form> -->
             <button id="manageActivitiesBtn" class="btn">Manage Activities</button>
             <div id="goalAchievement" class="hidden">Congratulations! You've achieved your daily step goal!</div>
             <div class="chart__container">
                 <canvas id="activityChart"></canvas>
-            </div>
-            <div class="total-steps-container">
-                <select id="totalStepsSelect">
-                    <option value="all">All Time</option>
-                    <option value="month">Current Month</option>
-                    <option value="day">Today</option>
-                </select>
-                <p>Total Steps: <span id="selectedTotalSteps">0</span></p>
             </div>
         </section>
 
