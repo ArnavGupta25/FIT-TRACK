@@ -86,7 +86,7 @@ header {
     margin-bottom: 2rem;
 }
 
-.overview__cards {
+/* .overview__cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
@@ -103,6 +103,50 @@ header {
 .overview__card h3 {
     margin-bottom: 0.5rem;
     color: var(--secondary-color);
+} */
+
+.overview__controls {
+    margin-bottom: 1rem;
+}
+
+.overview__controls select {
+    padding: 0.5rem;
+    border: 1px solid var(--primary-color-extra-light);
+    border-radius: 5px;
+    background-color: var(--primary-color-extra-light);
+    color: var(--white);
+    font-size: 1rem;
+}
+
+.overview__display {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.stat__item {
+    flex: 1;
+    background-color: var(--primary-color-extra-light);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat__item i {
+    font-size: 2rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat__item p {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+}
+
+.stat__item span {
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 form {
@@ -276,5 +320,11 @@ input {
 
     input {
         width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+        .overview__display {
+            flex-direction: column;
+        }
     }
 }

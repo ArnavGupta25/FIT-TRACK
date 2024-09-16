@@ -12,10 +12,7 @@ const manageActivitiesBtn = document.getElementById('manageActivitiesBtn');
 const manageActivitiesPopup = document.getElementById('manageActivitiesPopup');
 const closePopupBtn = document.getElementById('closePopupBtn');
 const activitiesList = document.getElementById('activitiesList');
-const overviewSelect = document.getElementById('overviewSelect');
 const overviewPeriod = document.getElementById('overviewPeriod');
-const overviewMetricTitle = document.getElementById('overviewMetricTitle');
-const overviewMetricValue = document.getElementById('overviewMetricValue');
 
 let activityChart;
 let nutritionChart;
@@ -79,80 +76,71 @@ function updateActivityChart(data) {
     }
 
     activityChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: data.dates,
             datasets: [
                 {
                     label: 'Steps',
                     data: data.steps,
-                    borderColor: '#4caf50',
-                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                    yAxisID: 'y-steps',
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    borderWidth: 1
                 },
                 {
                     label: 'Calories Burned',
                     data: data.calories,
-                    borderColor: '#ff6f61',
-                    backgroundColor: 'rgba(255, 111, 97, 0.1)',
-                    yAxisID: 'y-calories',
+                    backgroundColor: 'rgba(255, 111, 97, 0.7)',
+                    borderColor: 'rgba(255, 111, 97, 1)',
+                    borderWidth: 1
                 },
                 {
                     label: 'Active Minutes',
                     data: data.activeMinutes,
-                    borderColor: '#ffb74d',
-                    backgroundColor: 'rgba(255, 183, 77, 0.1)',
-                    yAxisID: 'y-minutes',
+                    backgroundColor: 'rgba(255, 183, 77, 0.7)',
+                    borderColor: 'rgba(255, 183, 77, 1)',
+                    borderWidth: 1
                 }
             ]
         },
         options: {
             responsive: true,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            stacked: false,
             scales: {
                 x: {
+                    stacked: false,
                     title: {
                         display: true,
                         text: 'Date'
                     }
                 },
-                'y-steps': {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
+                y: {
+                    stacked: false,
                     title: {
                         display: true,
-                        text: 'Steps'
-                    }
-                },
-                'y-calories': {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    grid: {
-                        drawOnChartArea: false,
+                        text: 'Value'
                     },
-                    title: {
-                        display: true,
-                        text: 'Calories Burned'
+                    ticks: {
+                        callback: function(value, index, values) {
+                            return value.toLocaleString();
+                        }
                     }
-                },
-                'y-minutes': {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    grid: {
-                        drawOnChartArea: false,
-                    },
-                    title: {
-                        display: true,
-                        text: 'Active Minutes'
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toLocaleString();
+                            }
+                            return label;
+                        }
                     }
-                },
+                }
             }
         }
     });
@@ -200,14 +188,14 @@ function populateMealList(meals) {
 
 function updateOverview() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
-    const metric = overviewSelect.value;
     const period = overviewPeriod.value;
     
-    let filteredActivities = filterActivitiesByPeriod(activities, period);
-    let totalValue = calculateTotalForMetric(filteredActivities, metric);
+    const filteredActivities = filterActivitiesByPeriod(activities, period);
+    const totalStats = calculateTotalStats(filteredActivities);
 
-    overviewMetricTitle.textContent = getMetricTitle(metric);
-    overviewMetricValue.textContent = totalValue;
+    document.getElementById('totalSteps').textContent = totalStats.steps.toLocaleString();
+    document.getElementById('totalCalories').textContent = totalStats.calories.toLocaleString();
+    document.getElementById('totalActiveMinutes').textContent = totalStats.activeMinutes.toLocaleString();
 }
 
 function filterActivitiesByPeriod(activities, period) {
@@ -217,7 +205,7 @@ function filterActivitiesByPeriod(activities, period) {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     switch (period) {
-        case 'day':
+        case 'today':
             return activities.filter(activity => new Date(activity.date) >= startOfDay);
         case 'week':
             return activities.filter(activity => new Date(activity.date) >= startOfWeek);
@@ -229,26 +217,13 @@ function filterActivitiesByPeriod(activities, period) {
     }
 }
 
-function calculateTotalForMetric(activities, metric) {
-    return activities.reduce((sum, activity) => sum + activity[getMetricKey(metric)], 0);
-}
-
-function getMetricKey(metric) {
-    switch (metric) {
-        case 'steps': return 'steps';
-        case 'calories': return 'caloriesBurned';
-        case 'active': return 'activeMinutes';
-        default: return 'steps';
-    }
-}
-
-function getMetricTitle(metric) {
-    switch (metric) {
-        case 'steps': return 'Steps';
-        case 'calories': return 'Calories Burned';
-        case 'active': return 'Active Minutes';
-        default: return 'Steps';
-    }
+function calculateTotalStats(activities) {
+    return activities.reduce((total, activity) => {
+        total.steps += activity.steps;
+        total.calories += activity.caloriesBurned;
+        total.activeMinutes += activity.activeMinutes;
+        return total;
+    }, { steps: 0, calories: 0, activeMinutes: 0 });
 }
 
 // Event Listeners
@@ -284,7 +259,6 @@ closePopupBtn.addEventListener('click', () => {
     manageActivitiesPopup.style.display = 'none';
 });
 
-overviewSelect.addEventListener('change', updateOverview);
 overviewPeriod.addEventListener('change', updateOverview);
 
 document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -321,6 +295,11 @@ function populateActivitiesList() {
 function openEditPopup(index) {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const activity = activities[index];
+
+    if (!activity) {
+        console.error('Activity not found');
+        return;
+    }
 
     const editPopup = document.createElement('div');
     editPopup.className = 'popup';
@@ -373,3 +352,9 @@ function deleteActivity(index) {
 
 // Initial load
 loadData();
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('userEmail');
+    window.location.href = 'index.html';
+});
