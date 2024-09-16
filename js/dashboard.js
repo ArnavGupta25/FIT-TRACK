@@ -7,9 +7,11 @@ if (sessionStorage.getItem('isLoggedIn') !== 'true') {
 const userGreeting = document.getElementById('userGreeting');
 const activityForm = document.getElementById('activityForm');
 const nutritionForm = document.getElementById('nutritionForm');
+const goalForm = document.getElementById('goalForm');
 const stepsInput = document.getElementById('steps');
 const caloriesBurnedInput = document.getElementById('caloriesBurned');
 const activeMinutesInput = document.getElementById('activeMinutes');
+const dailyStepGoalInput = document.getElementById('dailyStepGoal');
 const mealNameInput = document.getElementById('mealName');
 const caloriesInput = document.getElementById('calories');
 const mealList = document.getElementById('mealList');
@@ -19,6 +21,9 @@ const closePopupBtn = document.getElementById('closePopupBtn');
 const activitiesList = document.getElementById('activitiesList');
 const activityChartCtx = document.getElementById('activityChart').getContext('2d');
 const nutritionChartCtx = document.getElementById('nutritionChart').getContext('2d');
+const goalAchievement = document.getElementById('goalAchievement');
+const totalStepsSelect = document.getElementById('totalStepsSelect');
+const selectedTotalSteps = document.getElementById('selectedTotalSteps');
 
 let activityChart;
 let nutritionChart;
@@ -27,8 +32,10 @@ function loadData() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const meals = JSON.parse(localStorage.getItem('meals')) || [];
     const userEmail = sessionStorage.getItem('userEmail');
+    const dailyGoal = localStorage.getItem('dailyGoal') || 0;
 
     userGreeting.textContent = `Welcome, ${userEmail}!`;
+    document.getElementById('dailyGoal').textContent = dailyGoal;
 
     // Overview
     const totalSteps = activities.reduce((sum, activity) => sum + activity.steps, 0);
@@ -38,6 +45,18 @@ function loadData() {
     document.getElementById('totalSteps').textContent = totalSteps;
     document.getElementById('totalCaloriesBurned').textContent = totalCaloriesBurned;
     document.getElementById('totalActiveMinutes').textContent = totalActiveMinutes;
+
+    // Check if daily goal is achieved
+    const today = new Date().toDateString();
+    const todaySteps = activities
+        .filter(activity => new Date(activity.date).toDateString() === today)
+        .reduce((sum, activity) => sum + activity.steps, 0);
+
+    if (todaySteps >= dailyGoal) {
+        goalAchievement.classList.remove('hidden');
+    } else {
+        goalAchievement.classList.add('hidden');
+    }
 
     // Chart data
     const activityLabels = activities.map(activity => new Date(activity.date).toLocaleDateString());
@@ -130,6 +149,8 @@ function loadData() {
             <button onclick="deleteMeal('${meal.name}')">Delete</button>
         </div>
     `).join('');
+
+    updateTotalSteps();
 }
 
 // Add activity
@@ -142,6 +163,15 @@ activityForm.addEventListener('submit', function (e) {
     activities.push({ steps, caloriesBurned, activeMinutes, date: new Date().toISOString() });
     localStorage.setItem('activities', JSON.stringify(activities));
     activityForm.reset();
+    loadData();  // Refresh the UI and charts
+});
+
+// Set daily goal
+goalForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const dailyGoal = parseInt(dailyStepGoalInput.value);
+    localStorage.setItem('dailyGoal', dailyGoal);
+    goalForm.reset();
     loadData();  // Refresh the UI and charts
 });
 
@@ -223,7 +253,7 @@ function openEditPopup(index) {
         const caloriesBurned = parseInt(document.getElementById('editCaloriesBurned').value);
         const activeMinutes = parseInt(document.getElementById('editActiveMinutes').value);
 
-        activities[index] = { steps, caloriesBurned, activeMinutes, date: new Date().toISOString() };
+        activities[index] = { ...activities[index], steps, caloriesBurned, activeMinutes };
         localStorage.setItem('activities', JSON.stringify(activities));
         loadData();
         populateActivitiesList();
@@ -245,6 +275,34 @@ function deleteActivity(index) {
     loadData();
     populateActivitiesList();
 }
+
+function updateTotalSteps() {
+    const activities = JSON.parse(localStorage.getItem('activities')) || [];
+    const selectedOption = totalStepsSelect.value;
+    let totalSteps = 0;
+
+    switch (selectedOption) {
+        case 'all':
+            totalSteps = activities.reduce((sum, activity) => sum + activity.steps, 0);
+            break;
+        case 'month':
+            const currentMonth = new Date().getMonth();
+            totalSteps = activities
+                .filter(activity => new Date(activity.date).getMonth() === currentMonth)
+                .reduce((sum, activity) => sum + activity.steps, 0);
+            break;
+        case 'day':
+            const today = new Date().toDateString();
+            totalSteps = activities
+                .filter(activity => new Date(activity.date).toDateString() === today)
+                .reduce((sum, activity) => sum + activity.steps, 0);
+            break;
+    }
+
+    selectedTotalSteps.textContent = totalSteps;
+}
+
+totalStepsSelect.addEventListener('change', updateTotalSteps);
 
 // Load data initially
 loadData();

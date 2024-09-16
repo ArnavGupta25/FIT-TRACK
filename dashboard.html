@@ -44,6 +44,10 @@
                     <h3>Active Minutes</h3>
                     <p id="totalActiveMinutes">0</p>
                 </div>
+                <div class="overview__card">
+                    <h3>Daily Goal</h3>
+                    <p id="dailyGoal">0</p>
+                </div>
             </div>
         </section>
 
@@ -55,9 +59,22 @@
                 <input type="number" id="activeMinutes" placeholder="Active Minutes" required>
                 <button type="submit" class="btn">Add Activity</button>
             </form>
+            <form id="goalForm">
+                <input type="number" id="dailyStepGoal" placeholder="Set Daily Step Goal" required>
+                <button type="submit" class="btn">Set Goal</button>
+            </form>
             <button id="manageActivitiesBtn" class="btn">Manage Activities</button>
+            <div id="goalAchievement" class="hidden">Congratulations! You've achieved your daily step goal!</div>
             <div class="chart__container">
                 <canvas id="activityChart"></canvas>
+            </div>
+            <div class="total-steps-container">
+                <select id="totalStepsSelect">
+                    <option value="all">All Time</option>
+                    <option value="month">Current Month</option>
+                    <option value="day">Today</option>
+                </select>
+                <p>Total Steps: <span id="selectedTotalSteps">0</span></p>
             </div>
         </section>
 
