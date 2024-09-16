@@ -1,8 +1,3 @@
-// Check if user is logged in
-if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-    window.location.href = 'login.html';
-}
-
 // DOM Elements
 const userGreeting = document.getElementById('userGreeting');
 const activityForm = document.getElementById('activityForm');
@@ -17,8 +12,6 @@ const manageActivitiesBtn = document.getElementById('manageActivitiesBtn');
 const manageActivitiesPopup = document.getElementById('manageActivitiesPopup');
 const closePopupBtn = document.getElementById('closePopupBtn');
 const activitiesList = document.getElementById('activitiesList');
-const activityChartCtx = document.getElementById('activityChart').getContext('2d');
-const nutritionChartCtx = document.getElementById('nutritionChart').getContext('2d');
 const overviewSelect = document.getElementById('overviewSelect');
 const overviewPeriod = document.getElementById('overviewPeriod');
 const overviewMetricTitle = document.getElementById('overviewMetricTitle');
@@ -26,6 +19,11 @@ const overviewMetricValue = document.getElementById('overviewMetricValue');
 
 let activityChart;
 let nutritionChart;
+
+// Check if user is logged in
+if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+}
 
 function loadData() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
@@ -37,94 +35,161 @@ function loadData() {
     // Update overview
     updateOverview();
 
-    // Chart data
-    const activityLabels = activities.map(activity => new Date(activity.date).toLocaleDateString());
-    const activitySteps = activities.map(activity => activity.steps);
+    // Process and update activity data
+    const processedActivityData = processActivityData(activities);
+    updateActivityChart(processedActivityData);
 
-    // Destroy existing chart if it exists
+    // Update nutrition data
+    updateNutritionChart(meals);
+
+    // Populate meal list
+    populateMealList(meals);
+}
+
+function processActivityData(activities) {
+    // Sort activities by date
+    activities.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Group activities by date
+    const groupedActivities = activities.reduce((acc, activity) => {
+        const date = new Date(activity.date).toLocaleDateString();
+        if (!acc[date]) {
+            acc[date] = { steps: 0, caloriesBurned: 0, activeMinutes: 0 };
+        }
+        acc[date].steps += activity.steps;
+        acc[date].caloriesBurned += activity.caloriesBurned;
+        acc[date].activeMinutes += activity.activeMinutes;
+        return acc;
+    }, {});
+
+    // Convert grouped data to arrays for charting
+    const dates = Object.keys(groupedActivities);
+    const steps = dates.map(date => groupedActivities[date].steps);
+    const calories = dates.map(date => groupedActivities[date].caloriesBurned);
+    const activeMinutes = dates.map(date => groupedActivities[date].activeMinutes);
+
+    return { dates, steps, calories, activeMinutes };
+}
+
+function updateActivityChart(data) {
+    const ctx = document.getElementById('activityChart').getContext('2d');
+
     if (activityChart) {
         activityChart.destroy();
     }
 
-    // Initialize Activity Chart
-    try {
-        activityChart = new Chart(activityChartCtx, {
-            type: 'bar',
-            data: {
-                labels: activityLabels,
-                datasets: [
-                    {
-                        label: 'Steps',
-                        data: activitySteps,
-                        backgroundColor: '#4caf50',
-                    }
-                ]
+    activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.dates,
+            datasets: [
+                {
+                    label: 'Steps',
+                    data: data.steps,
+                    borderColor: '#4caf50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    yAxisID: 'y-steps',
+                },
+                {
+                    label: 'Calories Burned',
+                    data: data.calories,
+                    borderColor: '#ff6f61',
+                    backgroundColor: 'rgba(255, 111, 97, 0.1)',
+                    yAxisID: 'y-calories',
+                },
+                {
+                    label: 'Active Minutes',
+                    data: data.activeMinutes,
+                    borderColor: '#ffb74d',
+                    backgroundColor: 'rgba(255, 183, 77, 0.1)',
+                    yAxisID: 'y-minutes',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                return 'Steps: ' + tooltipItem.raw;
-                            }
-                        }
+            stacked: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Steps'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
+                'y-steps': {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Steps'
                     }
-                }
+                },
+                'y-calories': {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Calories Burned'
+                    }
+                },
+                'y-minutes': {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'Active Minutes'
+                    }
+                },
             }
-        });
-    } catch (error) {
-        console.error('Error initializing activity chart:', error);
-    }
+        }
+    });
+}
 
-    // Destroy existing nutrition chart if it exists
+function updateNutritionChart(meals) {
+    const ctx = document.getElementById('nutritionChart').getContext('2d');
+
     if (nutritionChart) {
         nutritionChart.destroy();
     }
 
-    // Initialize Nutrition Chart
-    try {
-        nutritionChart = new Chart(nutritionChartCtx, {
-            type: 'pie',
-            data: {
-                labels: meals.map(meal => meal.name),
-                datasets: [{
-                    data: meals.map(meal => meal.calories),
-                    backgroundColor: ['#ffb74d', '#ff6f61', '#f48fb1', '#81c784'],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
+    nutritionChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: meals.map(meal => meal.name),
+            datasets: [{
+                data: meals.map(meal => meal.calories),
+                backgroundColor: ['#ffb74d', '#ff6f61', '#f48fb1', '#81c784', '#64b5f6'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Calorie Distribution by Meal'
                 }
             }
-        });
-    } catch (error) {
-        console.error('Error initializing nutrition chart:', error);
-    }
+        }
+    });
+}
 
-    // Meal list
+function populateMealList(meals) {
     mealList.innerHTML = meals.map(meal => `
         <div class="meal-item">
             <span>${meal.name} - ${meal.calories} Calories</span>
@@ -186,7 +251,7 @@ function getMetricTitle(metric) {
     }
 }
 
-// Add activity
+// Event Listeners
 activityForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const steps = parseInt(stepsInput.value);
@@ -199,7 +264,6 @@ activityForm.addEventListener('submit', function (e) {
     loadData();  // Refresh the UI and charts
 });
 
-// Add meal
 nutritionForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const mealName = mealNameInput.value;
@@ -211,24 +275,31 @@ nutritionForm.addEventListener('submit', function (e) {
     loadData();  // Refresh the UI and charts
 });
 
-// Delete meal
+manageActivitiesBtn.addEventListener('click', () => {
+    manageActivitiesPopup.style.display = 'flex';
+    populateActivitiesList();
+});
+
+closePopupBtn.addEventListener('click', () => {
+    manageActivitiesPopup.style.display = 'none';
+});
+
+overviewSelect.addEventListener('change', updateOverview);
+overviewPeriod.addEventListener('change', updateOverview);
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('userEmail');
+    window.location.href = 'index.html';
+});
+
+// Helper functions
 function deleteMeal(name) {
     let meals = JSON.parse(localStorage.getItem('meals')) || [];
     meals = meals.filter(meal => meal.name !== name);
     localStorage.setItem('meals', JSON.stringify(meals));
     loadData();  // Refresh the UI and charts
 }
-
-// Show the popup
-manageActivitiesBtn.addEventListener('click', () => {
-    manageActivitiesPopup.style.display = 'flex';
-    populateActivitiesList();
-});
-
-// Close the popup
-closePopupBtn.addEventListener('click', () => {
-    manageActivitiesPopup.style.display = 'none';
-});
 
 function populateActivitiesList() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
@@ -300,15 +371,5 @@ function deleteActivity(index) {
     populateActivitiesList();
 }
 
-// Event listeners for overview controls
-overviewSelect.addEventListener('change', updateOverview);
-overviewPeriod.addEventListener('change', updateOverview);
-
-// Load data initially
+// Initial load
 loadData();
-
-document.getElementById('logoutBtn').addEventListener('click', function() {
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('userEmail');
-    window.location.href = 'index.html';
-});
