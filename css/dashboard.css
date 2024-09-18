@@ -303,6 +303,10 @@ input {
     transform: scale(1.05);
 }
 
+#nutritionChart{
+    max-height: 500px;
+}
+
 .chart-navigation {
     display: flex;
     justify-content: space-between;
