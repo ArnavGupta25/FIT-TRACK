@@ -17,6 +17,9 @@ const overviewPeriod = document.getElementById('overviewPeriod');
 let activityChart;
 let nutritionChart;
 
+let currentDateIndex = 0;
+let dateKeys = [];
+
 // Check if user is logged in
 if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     window.location.href = 'login.html';
@@ -29,6 +32,14 @@ function loadData() {
 
     userGreeting.textContent = `Welcome, ${userEmail}!`;
 
+    const updatedMeals = meals.map(meal => {
+        if (!meal.date) {
+            meal.date = new Date().toISOString();
+        }
+        return meal;
+    });
+    localStorage.setItem('meals', JSON.stringify(updatedMeals));
+
     // Update overview
     updateOverview();
 
@@ -37,7 +48,7 @@ function loadData() {
     updateActivityChart(processedActivityData);
 
     // Update nutrition data
-    updateNutritionChart(meals);
+    updateNutritionChart(updatedMeals);
 
     // Populate meal list
     populateMealList(meals);
@@ -105,6 +116,7 @@ function updateActivityChart(data) {
         },
         options: {
             responsive: true,
+            maintainmaintainAspectRatio: false,
             scales: {
                 x: {
                     stacked: false,
@@ -147,34 +159,84 @@ function updateActivityChart(data) {
 }
 
 function updateNutritionChart(meals) {
+    const nutritionChartContainer = document.getElementById('nutritionChartContainer');
+    nutritionChartContainer.innerHTML = `
+        <div class="chart-navigation">
+            <button id="prevDay">Previous Day</button>
+            <span id="currentDate"></span>
+            <button id="nextDay">Next Day</button>
+        </div>
+        <canvas id="nutritionChart"></canvas>
+    `;
+
+    const mealsByDay = processMealDataByDay(meals);
+    dateKeys = Object.keys(mealsByDay).sort((a, b) => new Date(b) - new Date(a));
+    currentDateIndex = 0;
+
     const ctx = document.getElementById('nutritionChart').getContext('2d');
 
-    if (nutritionChart) {
-        nutritionChart.destroy();
-    }
+    function updateChart() {
+        const currentDate = dateKeys[currentDateIndex];
+        const dayMeals = mealsByDay[currentDate];
 
-    nutritionChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: meals.map(meal => meal.name),
-            datasets: [{
-                data: meals.map(meal => meal.calories),
-                backgroundColor: ['#ffb74d', '#ff6f61', '#f48fb1', '#81c784', '#64b5f6'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Calorie Distribution by Meal'
+        if (nutritionChart) {
+            nutritionChart.destroy();
+        }
+
+        nutritionChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: dayMeals.map(meal => meal.name),
+                datasets: [{
+                    data: dayMeals.map(meal => meal.calories),
+                    backgroundColor: ['#ffb74d', '#ff6f61', '#f48fb1', '#81c784', '#64b5f6'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainmaintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: `Calorie Distribution for ${currentDate}`
+                    }
                 }
             }
+        });
+
+        document.getElementById('currentDate').textContent = currentDate;
+    }
+
+    document.getElementById('prevDay').addEventListener('click', () => {
+        if (currentDateIndex < dateKeys.length - 1) {
+            currentDateIndex++;
+            updateChart();
         }
     });
+
+    document.getElementById('nextDay').addEventListener('click', () => {
+        if (currentDateIndex > 0) {
+            currentDateIndex--;
+            updateChart();
+        }
+    });
+
+    updateChart();
+}
+
+function processMealDataByDay(meals) {
+    const mealsByDay = {};
+    meals.forEach(meal => {
+        const date = new Date(meal.date).toLocaleDateString();
+        if (!mealsByDay[date]) {
+            mealsByDay[date] = [];
+        }
+        mealsByDay[date].push(meal);
+    });
+    return mealsByDay;
 }
 
 function populateMealList(meals) {
@@ -247,7 +309,7 @@ nutritionForm.addEventListener('submit', function (e) {
     const mealName = mealNameInput.value;
     const calories = parseInt(caloriesInput.value);
     const meals = JSON.parse(localStorage.getItem('meals')) || [];
-    meals.push({ name: mealName, calories });
+    meals.push({ name: mealName, calories, date: new Date().toISOString() });
     localStorage.setItem('meals', JSON.stringify(meals));
     nutritionForm.reset();
     loadData();  // Refresh the UI and charts

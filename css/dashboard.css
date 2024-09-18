@@ -303,6 +303,27 @@ input {
     transform: scale(1.05);
 }
 
+.chart-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.chart-navigation button {
+    padding: 5px 10px;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.chart-navigation button:hover {
+    background-color: var(--secondary-color-dark);
+}
+
 
 @media (max-width: 768px) {
     .nav__links {
