@@ -178,6 +178,20 @@ input {
     transition: background-color 0.3s;
 }
 
+.meal-item .btn-group #edit {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 3px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.meal-item .btn-group #edit:hover {
+    background-color: var(--secondary-color-dark);
+}
+
 .meal-item button:hover {
     background-color: #cc0000;
 }

@@ -178,10 +178,13 @@ function updateNutritionChart(meals) {
 }
 
 function populateMealList(meals) {
-    mealList.innerHTML = meals.map(meal => `
+    mealList.innerHTML = meals.map((meal, index) => `
         <div class="meal-item">
             <span>${meal.name} - ${meal.calories} Calories</span>
-            <button onclick="deleteMeal('${meal.name}')">Delete</button>
+            <div class="btn-group">
+                <button id="edit" onclick="openEditMealPopup(${index})">Edit</button>
+                <button onclick="deleteMeal(${index})">Delete</button>
+            </div>
         </div>
     `).join('');
 }
@@ -268,11 +271,58 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
 });
 
 // Helper functions
-function deleteMeal(name) {
+function openEditMealPopup(index) {
+    const meals = JSON.parse(localStorage.getItem('meals')) || [];
+    const meal = meals[index];
+
+    if (!meal) {
+        console.error('Meal not found');
+        return;
+    }
+
+    const editPopup = document.createElement('div');
+    editPopup.className = 'popup';
+    editPopup.id = 'editMealPopup';
+    editPopup.innerHTML = `
+        <div class="popup-content">
+            <h3>Edit Meal</h3>
+            <form id="editMealForm">
+                <input type="text" id="editMealName" value="${meal.name}" required>
+                <input type="number" id="editMealCalories" value="${meal.calories}" required>
+                <button type="submit" class="btn">Save Changes</button>
+                <button type="button" class="btn" onclick="closeEditMealPopup()">Cancel</button>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(editPopup);
+    editPopup.style.display = 'flex';
+
+    const editMealForm = document.getElementById('editMealForm');
+    editMealForm.onsubmit = function (e) {
+        e.preventDefault();
+        const name = document.getElementById('editMealName').value;
+        const calories = parseInt(document.getElementById('editMealCalories').value);
+
+        meals[index] = { name, calories };
+        localStorage.setItem('meals', JSON.stringify(meals));
+        loadData();
+        closeEditMealPopup();
+    };
+}
+
+function closeEditMealPopup() {
+    const editPopup = document.getElementById('editMealPopup');
+    if (editPopup) {
+        editPopup.remove();
+    }
+}
+
+function deleteMeal(index) {
     let meals = JSON.parse(localStorage.getItem('meals')) || [];
-    meals = meals.filter(meal => meal.name !== name);
+    meals.splice(index, 1);
     localStorage.setItem('meals', JSON.stringify(meals));
-    loadData();  // Refresh the UI and charts
+    loadData();
 }
 
 function populateActivitiesList() {
