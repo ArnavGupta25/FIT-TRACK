@@ -91,6 +91,7 @@ header {
 }
 
 .overview__controls select {
+    width: 100%;
     padding: 0.5rem;
     border: 1px solid var(--primary-color-extra-light);
     border-radius: 5px;
@@ -101,12 +102,13 @@ header {
 
 .overview__display {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
 }
 
 .stat__item {
-    flex: 1;
+    flex: 1 1 calc(33.333% - 1rem);
+    min-width: 200px;
     background-color: var(--primary-color-extra-light);
     border-radius: 10px;
     padding: 1.5rem;
@@ -138,8 +140,7 @@ form {
 }
 
 input {
-    flex: 1;
-    min-width: 120px;
+    flex: 1 1 200px;
     padding: 0.5rem;
     border: 1px solid var(--primary-color-extra-light);
     border-radius: 5px;
@@ -152,6 +153,17 @@ input {
     border-radius: 5px;
     padding: 1rem;
     margin-top: 1rem;
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#activityChart, #nutritionChart {
+    max-width: 100%;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
 }
 
 #mealList {
@@ -164,8 +176,10 @@ input {
     padding: 0.5rem;
     margin-bottom: 0.5rem;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .meal-item button {
@@ -212,7 +226,7 @@ input {
     background-color: var(--primary-color-light);
     padding: 2rem;
     border-radius: 10px;
-    width: 80%;
+    width: 90%;
     max-width: 600px;
 }
 
@@ -232,8 +246,10 @@ input {
     padding: 1rem;
     border-radius: 5px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .popup-content li span {
@@ -285,7 +301,7 @@ input {
     border: 1px solid var(--primary-color-extra-light);
     border-radius: 5px;
     background-color: var(--primary-color-extra-light);
-    color: var(--white);
+    color: var (--white);
 }
 
 #editActivityPopup .popup-content button {
@@ -303,15 +319,24 @@ input {
     transform: scale(1.05);
 }
 
-#nutritionChart{
+#nutritionChart {
     max-height: 500px;
+    width: 100%;
+}
+
+#nutritionChartContainer {
+    position: relative;
+    padding-top: 30px;
 }
 
 .chart-navigation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    padding: 0 10px;
 }
 
 .chart-navigation button {
@@ -328,21 +353,118 @@ input {
     background-color: var(--secondary-color-dark);
 }
 
-
 @media (max-width: 768px) {
     .nav__links {
         display: none;
     }
 
-    form {
+    .overview__display {
         flex-direction: column;
     }
 
-    input {
+    .stat__item {
+        flex-basis: 100%;
+    }
+
+    form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    form .btn {
         width: 100%;
     }
 
-    .overview__display {
+    input {
+        max-height: 36px; 
+        font-size: 14px; 
+        padding: 0.3rem 0.5rem;
+    }
+
+    .chart__container {
+        min-height: 250px;
+        padding: 0.5rem;
+    }
+
+    #activityChart, #nutritionChart {
+        aspect-ratio: 4 / 3;
+    }
+
+    .meal-item {
         flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .meal-item .btn-group {
+        margin-top: 0.5rem;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .chart-navigation {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chart-navigation button {
+        width: auto;
+        padding: 3px 6px;
+        font-size: 0.8rem;
+    }
+
+    /* Center the meal chart */
+    #nutritionChartContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: auto;
+    }
+
+    #nutritionChart {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart__container {
+        min-height: 200px;
+    }
+
+    #activityChart, #nutritionChart {
+        aspect-ratio: 1/1;
+    }
+
+    .dashboard__section {
+        padding: 1rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    input {
+        height: 32px;
+        font-size: 13px;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .chart-navigation button {
+        padding: 2px 4px;
+        font-size: 0.7rem;
+    }
+
+    #nutritionChartContainer {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    #nutritionChart {
+        min-width: 280px;
+        max-width: 100%;
+        height: auto;
     }
 }

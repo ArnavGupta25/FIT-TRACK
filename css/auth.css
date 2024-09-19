@@ -2,8 +2,8 @@
 
 :root {
     --primary-color: #0a0a0a;
-    --primary-color-light: #1a1a1a;
-    --primary-color-extra-light: #2a2a2a;
+    --primary-color-light: #242424;
+    --primary-color-extra-light: #2f2f2f;
     --secondary-color: #4caf50;
     --secondary-color-dark: #45a049;
     --text-light: #d1d5db;
@@ -146,5 +146,21 @@ body {
 @media (max-width: 480px) {
     .auth-container {
         max-width: 100%;
+        margin: 0 10px;
+    }
+    .auth-form {
+        padding: 1.5rem;
+    }
+    .auth-header {
+        padding: 1rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-group input {
+        padding: 0.6rem;
+    }
+    .auth-btn {
+        padding: 0.6rem;
     }
 }

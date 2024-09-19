@@ -2,11 +2,11 @@
 
 :root {
   --primary-color: #0a0a0a;
-  --primary-color-light: #1a1a1a;
-  --primary-color-extra-light: #2a2a2a;
+  --primary-color-light: #242424;
+  --primary-color-extra-light: #2f2f2f;
   --secondary-color: #4caf50;
   --secondary-color-dark: #45a049;
-  --text-light: #d1d5db;
+  --text-light: #e0e0e0;
   --white: #ffffff;
   --max-width: 1200px;
 }
@@ -413,52 +413,106 @@ nav {
   background-color: #cc0000;
 }
 
-@media (width < 900px) {
+@media (max-width: 1200px) {
+  .section__container {
+    padding: 4rem 2rem;
+  }
+
+  .header__content h1 {
+    font-size: 4rem;
+    line-height: 5rem;
+  }
+}
+
+@media (max-width: 992px) {
   .nav__links {
     display: none;
   }
 
   .header__container {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: 1fr;
+    text-align: center;
   }
 
   .header__image {
     grid-area: 1/1/2/2;
   }
 
+  .header__content {
+    padding-top: 2rem;
+  }
+
   .features__grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  .about__container {
-    padding: 3rem 1rem;
-  }
-
-  .footer__container {
-    grid-template-columns: 1fr 200px;
-  }
-}
-
-@media (width < 600px) {
-  .features__grid {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  .about__container {
-    padding: 2rem 1rem;
+    gap: 2rem;
   }
 
   .review__container {
     flex-direction: column;
-    gap: 0;
+    align-items: center;
+    text-align: center;
+  }
+
+  .review__container > span {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .section__header {
+    font-size: 1.8rem;
+  }
+
+  .header__content h1 {
+    font-size: 3rem;
+    line-height: 3.5rem;
+  }
+
+  .header__image::before {
+    font-size: 30rem;
+  }
+
+  .features__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer__container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .section__container {
+    padding: 3rem 1rem;
+  }
+
+  .header__content h1 {
+    font-size: 2.5rem;
+    line-height: 3rem;
+  }
+
+  .header__image::before {
+    font-size: 20rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
   }
 
   .review__footer {
     flex-direction: column;
+    align-items: center;
   }
 
-  .footer__container {
-    grid-template-columns: 1fr 150px;
+  .review__member {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer__socials {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

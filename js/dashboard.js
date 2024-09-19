@@ -86,6 +86,8 @@ function updateActivityChart(data) {
         activityChart.destroy();
     }
 
+    const isSmallScreen = window.innerWidth < 480;
+
     activityChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -116,22 +118,39 @@ function updateActivityChart(data) {
         },
         options: {
             responsive: true,
-            maintainmaintainAspectRatio: false,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     stacked: false,
                     title: {
-                        display: true,
+                        display: !isSmallScreen,
                         text: 'Date'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: true,
+                        maxTicksLimit: isSmallScreen ? 5 : 8,
+                        callback: function(value, index, values) {
+                            const date = new Date(this.getLabelForValue(value));
+                            if (isNaN(date)) {
+                                return value;
+                            }
+                            const options = isSmallScreen 
+                                ? { month: 'short', day: 'numeric' }
+                                : { month: 'short', day: 'numeric', year: '2-digit' };
+                            return date.toLocaleDateString(undefined, options);
+                        }
                     }
                 },
                 y: {
                     stacked: false,
                     title: {
-                        display: true,
+                        display: !isSmallScreen,
                         text: 'Value'
                     },
                     ticks: {
+                        maxTicksLimit: isSmallScreen ? 5 : 8,
                         callback: function(value, index, values) {
                             return value.toLocaleString();
                         }
@@ -139,6 +158,9 @@ function updateActivityChart(data) {
                 }
             },
             plugins: {
+                legend: {
+                    display: !isSmallScreen
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -325,6 +347,18 @@ closePopupBtn.addEventListener('click', () => {
 });
 
 overviewPeriod.addEventListener('change', updateOverview);
+
+window.addEventListener('resize', function() {
+    const isSmallScreen = window.innerWidth < 480;
+    if (activityChart) {
+        activityChart.options.scales.x.ticks.maxTicksLimit = isSmallScreen ? 5 : 8;
+        activityChart.options.scales.y.ticks.maxTicksLimit = isSmallScreen ? 5 : 8;
+        activityChart.options.plugins.legend.display = !isSmallScreen;
+        activityChart.options.scales.x.title.display = !isSmallScreen;
+        activityChart.options.scales.y.title.display = !isSmallScreen;
+        activityChart.update();
+    }
+});
 
 document.getElementById('logoutBtn').addEventListener('click', function() {
     sessionStorage.removeItem('isLoggedIn');
