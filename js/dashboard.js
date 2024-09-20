@@ -13,6 +13,11 @@ const manageActivitiesPopup = document.getElementById('manageActivitiesPopup');
 const closePopupBtn = document.getElementById('closePopupBtn');
 const activitiesList = document.getElementById('activitiesList');
 const overviewPeriod = document.getElementById('overviewPeriod');
+const manageMealsBtn = document.getElementById('manageMealsBtn');
+const manageMealsPopup = document.getElementById('manageMealsPopup');
+const closeMealsPopupBtn = document.getElementById('closeMealsPopupBtn');
+const mealsList = document.getElementById('mealsList');
+
 
 let activityChart;
 let nutritionChart;
@@ -51,7 +56,7 @@ function loadData() {
     updateNutritionChart(updatedMeals);
 
     // Populate meal list
-    populateMealList(meals);
+    populateMealsList();
 }
 
 function processActivityData(activities) {
@@ -261,16 +266,21 @@ function processMealDataByDay(meals) {
     return mealsByDay;
 }
 
-function populateMealList(meals) {
-    mealList.innerHTML = meals.map((meal, index) => `
-        <div class="meal-item">
-            <span>${meal.name} - ${meal.calories} Calories</span>
+function populateMealsList() {
+    const meals = JSON.parse(localStorage.getItem('meals')) || [];
+    mealsList.innerHTML = '';
+
+    meals.forEach((meal, index) => {
+        const mealItem = document.createElement('li');
+        mealItem.innerHTML = `
+            <span>${new Date(meal.date).toLocaleDateString()} - ${meal.name} - ${meal.calories} Calories</span>
             <div class="btn-group">
-                <button id="edit" onclick="openEditMealPopup(${index})">Edit</button>
-                <button onclick="deleteMeal(${index})">Delete</button>
+                <button class="btn edit-btn" onclick="openEditMealPopup(${index})">Edit</button>
+                <button class="btn delete-btn" onclick="deleteMeal(${index})">Delete</button>
             </div>
-        </div>
-    `).join('');
+        `;
+        mealsList.appendChild(mealItem);
+    });
 }
 
 function updateOverview() {
@@ -346,6 +356,15 @@ closePopupBtn.addEventListener('click', () => {
     manageActivitiesPopup.style.display = 'none';
 });
 
+manageMealsBtn.addEventListener('click', () => {
+    manageMealsPopup.style.display = 'flex';
+    populateMealsList();
+});
+
+closeMealsPopupBtn.addEventListener('click', () => {
+    manageMealsPopup.style.display = 'none';
+});
+
 overviewPeriod.addEventListener('change', updateOverview);
 
 window.addEventListener('resize', function() {
@@ -400,9 +419,10 @@ function openEditMealPopup(index) {
         const name = document.getElementById('editMealName').value;
         const calories = parseInt(document.getElementById('editMealCalories').value);
 
-        meals[index] = { name, calories };
+        meals[index] = { ...meals[index], name, calories };
         localStorage.setItem('meals', JSON.stringify(meals));
         loadData();
+        populateMealsList();
         closeEditMealPopup();
     };
 }
@@ -419,7 +439,9 @@ function deleteMeal(index) {
     meals.splice(index, 1);
     localStorage.setItem('meals', JSON.stringify(meals));
     loadData();
+    populateMealsList();
 }
+
 
 function populateActivitiesList() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
