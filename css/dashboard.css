@@ -302,6 +302,7 @@ input {
     border-radius: 5px;
     background-color: var(--primary-color-extra-light);
     color: var (--white);
+    max-height: 36px;
 }
 
 #editActivityPopup .popup-content button {
