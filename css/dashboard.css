@@ -160,7 +160,8 @@ input {
     align-items: center;
 }
 
-#activityChart, #nutritionChart {
+#activityChart,
+#nutritionChart {
     max-width: 100%;
     height: auto !important;
     aspect-ratio: 16 / 9;
@@ -220,6 +221,7 @@ input {
     background-color: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
+    z-index: 1000;
 }
 
 .popup-content {
@@ -228,6 +230,8 @@ input {
     border-radius: 10px;
     width: 90%;
     max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .popup-content h3 {
@@ -255,6 +259,7 @@ input {
 .popup-content li span {
     flex-grow: 1;
     margin-right: 1rem;
+    word-break: break-word;
 }
 
 .popup-content .btn-group {
@@ -377,8 +382,8 @@ input {
     }
 
     input {
-        max-height: 36px; 
-        font-size: 14px; 
+        max-height: 36px;
+        font-size: 14px;
         padding: 0.3rem 0.5rem;
     }
 
@@ -387,7 +392,8 @@ input {
         padding: 0.5rem;
     }
 
-    #activityChart, #nutritionChart {
+    #activityChart,
+    #nutritionChart {
         aspect-ratio: 4 / 3;
     }
 
@@ -428,6 +434,32 @@ input {
         max-width: 100%;
         height: auto;
     }
+
+    .popup-content {
+        padding: 1.5rem;
+        width: 95%;
+    }
+
+    .popup-content li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .popup-content li span {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .popup-content .btn-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .popup-content .edit-btn,
+    .popup-content .delete-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -435,7 +467,8 @@ input {
         min-height: 200px;
     }
 
-    #activityChart, #nutritionChart {
+    #activityChart,
+    #nutritionChart {
         aspect-ratio: 1/1;
     }
 
@@ -467,5 +500,23 @@ input {
         min-width: 280px;
         max-width: 100%;
         height: auto;
+    }
+
+    .popup-content {
+        padding: 1rem;
+    }
+
+    .popup-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .popup-content li {
+        padding: 0.8rem;
+    }
+
+    .popup-content .edit-btn,
+    .popup-content .delete-btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
     }
 }
