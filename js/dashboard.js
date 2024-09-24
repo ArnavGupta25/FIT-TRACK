@@ -18,18 +18,17 @@ const manageMealsPopup = document.getElementById('manageMealsPopup');
 const closeMealsPopupBtn = document.getElementById('closeMealsPopupBtn');
 const mealsList = document.getElementById('mealsList');
 
-
 let activityChart;
 let nutritionChart;
-
 let currentDateIndex = 0;
 let dateKeys = [];
 
-// Check if user is logged in
+// Authentication Check
 if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     window.location.href = 'login.html';
 }
 
+// Main Functions
 function loadData() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const meals = JSON.parse(localStorage.getItem('meals')) || [];
@@ -45,25 +44,17 @@ function loadData() {
     });
     localStorage.setItem('meals', JSON.stringify(updatedMeals));
 
-    // Update overview
     updateOverview();
-
-    // Process and update activity data
     const processedActivityData = processActivityData(activities);
     updateActivityChart(processedActivityData);
-
-    // Update nutrition data
     updateNutritionChart(updatedMeals);
-
-    // Populate meal list
     populateMealsList();
 }
 
+// Activity-related Functions
 function processActivityData(activities) {
-    // Sort activities by date
     activities.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // Group activities by date
     const groupedActivities = activities.reduce((acc, activity) => {
         const date = new Date(activity.date).toLocaleDateString();
         if (!acc[date]) {
@@ -75,7 +66,6 @@ function processActivityData(activities) {
         return acc;
     }, {});
 
-    // Convert grouped data to arrays for charting
     const dates = Object.keys(groupedActivities);
     const steps = dates.map(date => groupedActivities[date].steps);
     const calories = dates.map(date => groupedActivities[date].caloriesBurned);
@@ -185,6 +175,82 @@ function updateActivityChart(data) {
     });
 }
 
+function populateActivitiesList() {
+    const activities = JSON.parse(localStorage.getItem('activities')) || [];
+    activitiesList.innerHTML = '';
+
+    activities.forEach((activity, index) => {
+        const activityItem = document.createElement('li');
+        activityItem.innerHTML = `
+            <span>${new Date(activity.date).toLocaleDateString()} - Steps: ${activity.steps}, Calories: ${activity.caloriesBurned}, Active Minutes: ${activity.activeMinutes}</span>
+            <div class="btn-group">
+                <button class="btn edit-btn" onclick="openEditPopup(${index})">Edit</button>
+                <button class="btn delete-btn" onclick="deleteActivity(${index})">Delete</button>
+            </div>
+        `;
+        activitiesList.appendChild(activityItem);
+    });
+}
+
+function openEditPopup(index) {
+    const activities = JSON.parse(localStorage.getItem('activities')) || [];
+    const activity = activities[index];
+
+    if (!activity) {
+        console.error('Activity not found');
+        return;
+    }
+
+    const editPopup = document.createElement('div');
+    editPopup.className = 'popup';
+    editPopup.id = 'editActivityPopup';
+    editPopup.innerHTML = `
+        <div class="popup-content">
+            <h3>Edit Activity</h3>
+            <form id="editActivityForm">
+                <input type="number" id="editSteps" value="${activity.steps}" required>
+                <input type="number" id="editCaloriesBurned" value="${activity.caloriesBurned}" required>
+                <input type="number" id="editActiveMinutes" value="${activity.activeMinutes}" required>
+                <button type="submit" class="btn">Save Changes</button>
+                <button type="button" class="btn" onclick="closeEditPopup()">Cancel</button>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(editPopup);
+    editPopup.style.display = 'flex';
+
+    const editActivityForm = document.getElementById('editActivityForm');
+    editActivityForm.onsubmit = function (e) {
+        e.preventDefault();
+        const steps = parseInt(document.getElementById('editSteps').value);
+        const caloriesBurned = parseInt(document.getElementById('editCaloriesBurned').value);
+        const activeMinutes = parseInt(document.getElementById('editActiveMinutes').value);
+
+        activities[index] = { ...activities[index], steps, caloriesBurned, activeMinutes };
+        localStorage.setItem('activities', JSON.stringify(activities));
+        loadData();
+        populateActivitiesList();
+        closeEditPopup();
+    };
+}
+
+function closeEditPopup() {
+    const editPopup = document.getElementById('editActivityPopup');
+    if (editPopup) {
+        editPopup.remove();
+    }
+}
+
+function deleteActivity(index) {
+    let activities = JSON.parse(localStorage.getItem('activities')) || [];
+    activities.splice(index, 1);
+    localStorage.setItem('activities', JSON.stringify(activities));
+    loadData();
+    populateActivitiesList();
+}
+
+// Nutrition-related Functions
 function updateNutritionChart(meals) {
     const nutritionChartContainer = document.getElementById('nutritionChartContainer');
     nutritionChartContainer.innerHTML = `
@@ -221,7 +287,7 @@ function updateNutritionChart(meals) {
             },
             options: {
                 responsive: true,
-                maintainmaintainAspectRatio: false,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'top',
@@ -283,6 +349,63 @@ function populateMealsList() {
     });
 }
 
+function openEditMealPopup(index) {
+    const meals = JSON.parse(localStorage.getItem('meals')) || [];
+    const meal = meals[index];
+
+    if (!meal) {
+        console.error('Meal not found');
+        return;
+    }
+
+    const editPopup = document.createElement('div');
+    editPopup.className = 'popup';
+    editPopup.id = 'editMealPopup';
+    editPopup.innerHTML = `
+        <div class="popup-content">
+            <h3>Edit Meal</h3>
+            <form id="editMealForm">
+                <input type="text" id="editMealName" value="${meal.name}" required>
+                <input type="number" id="editMealCalories" value="${meal.calories}" required>
+                <button type="submit" class="btn">Save Changes</button>
+                <button type="button" class="btn" onclick="closeEditMealPopup()">Cancel</button>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(editPopup);
+    editPopup.style.display = 'flex';
+
+    const editMealForm = document.getElementById('editMealForm');
+    editMealForm.onsubmit = function (e) {
+        e.preventDefault();
+        const name = document.getElementById('editMealName').value;
+        const calories = parseInt(document.getElementById('editMealCalories').value);
+
+        meals[index] = { ...meals[index], name, calories };
+        localStorage.setItem('meals', JSON.stringify(meals));
+        loadData();
+        populateMealsList();
+        closeEditMealPopup();
+    };
+}
+
+function closeEditMealPopup() {
+    const editPopup = document.getElementById('editMealPopup');
+    if (editPopup) {
+        editPopup.remove();
+    }
+}
+
+function deleteMeal(index) {
+    let meals = JSON.parse(localStorage.getItem('meals')) || [];
+    meals.splice(index, 1);
+    localStorage.setItem('meals', JSON.stringify(meals));
+    loadData();
+    populateMealsList();
+}
+
+// Overview Functions
 function updateOverview() {
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     const period = overviewPeriod.value;
@@ -378,145 +501,6 @@ window.addEventListener('resize', function() {
         activityChart.update();
     }
 });
-
-document.getElementById('logoutBtn').addEventListener('click', function() {
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('userEmail');
-    window.location.href = 'index.html';
-});
-
-// Helper functions
-function openEditMealPopup(index) {
-    const meals = JSON.parse(localStorage.getItem('meals')) || [];
-    const meal = meals[index];
-
-    if (!meal) {
-        console.error('Meal not found');
-        return;
-    }
-
-    const editPopup = document.createElement('div');
-    editPopup.className = 'popup';
-    editPopup.id = 'editMealPopup';
-    editPopup.innerHTML = `
-        <div class="popup-content">
-            <h3>Edit Meal</h3>
-            <form id="editMealForm">
-                <input type="text" id="editMealName" value="${meal.name}" required>
-                <input type="number" id="editMealCalories" value="${meal.calories}" required>
-                <button type="submit" class="btn">Save Changes</button>
-                <button type="button" class="btn" onclick="closeEditMealPopup()">Cancel</button>
-            </form>
-        </div>
-    `;
-
-    document.body.appendChild(editPopup);
-    editPopup.style.display = 'flex';
-
-    const editMealForm = document.getElementById('editMealForm');
-    editMealForm.onsubmit = function (e) {
-        e.preventDefault();
-        const name = document.getElementById('editMealName').value;
-        const calories = parseInt(document.getElementById('editMealCalories').value);
-
-        meals[index] = { ...meals[index], name, calories };
-        localStorage.setItem('meals', JSON.stringify(meals));
-        loadData();
-        populateMealsList();
-        closeEditMealPopup();
-    };
-}
-
-function closeEditMealPopup() {
-    const editPopup = document.getElementById('editMealPopup');
-    if (editPopup) {
-        editPopup.remove();
-    }
-}
-
-function deleteMeal(index) {
-    let meals = JSON.parse(localStorage.getItem('meals')) || [];
-    meals.splice(index, 1);
-    localStorage.setItem('meals', JSON.stringify(meals));
-    loadData();
-    populateMealsList();
-}
-
-
-function populateActivitiesList() {
-    const activities = JSON.parse(localStorage.getItem('activities')) || [];
-    activitiesList.innerHTML = '';
-
-    activities.forEach((activity, index) => {
-        const activityItem = document.createElement('li');
-        activityItem.innerHTML = `
-            <span>${new Date(activity.date).toLocaleDateString()} - Steps: ${activity.steps}, Calories: ${activity.caloriesBurned}, Active Minutes: ${activity.activeMinutes}</span>
-            <div class="btn-group">
-                <button class="btn edit-btn" onclick="openEditPopup(${index})">Edit</button>
-                <button class="btn delete-btn" onclick="deleteActivity(${index})">Delete</button>
-            </div>
-        `;
-        activitiesList.appendChild(activityItem);
-    });
-}
-
-function openEditPopup(index) {
-    const activities = JSON.parse(localStorage.getItem('activities')) || [];
-    const activity = activities[index];
-
-    if (!activity) {
-        console.error('Activity not found');
-        return;
-    }
-
-    const editPopup = document.createElement('div');
-    editPopup.className = 'popup';
-    editPopup.id = 'editActivityPopup';
-    editPopup.innerHTML = `
-        <div class="popup-content">
-            <h3>Edit Activity</h3>
-            <form id="editActivityForm">
-                <input type="number" id="editSteps" value="${activity.steps}" required>
-                <input type="number" id="editCaloriesBurned" value="${activity.caloriesBurned}" required>
-                <input type="number" id="editActiveMinutes" value="${activity.activeMinutes}" required>
-                <button type="submit" class="btn">Save Changes</button>
-                <button type="button" class="btn" onclick="closeEditPopup()">Cancel</button>
-            </form>
-        </div>
-    `;
-
-    document.body.appendChild(editPopup);
-    editPopup.style.display = 'flex';
-
-    const editActivityForm = document.getElementById('editActivityForm');
-    editActivityForm.onsubmit = function (e) {
-        e.preventDefault();
-        const steps = parseInt(document.getElementById('editSteps').value);
-        const caloriesBurned = parseInt(document.getElementById('editCaloriesBurned').value);
-        const activeMinutes = parseInt(document.getElementById('editActiveMinutes').value);
-
-        activities[index] = { ...activities[index], steps, caloriesBurned, activeMinutes };
-        localStorage.setItem('activities', JSON.stringify(activities));
-        loadData();
-        populateActivitiesList();
-        closeEditPopup();
-    };
-}
-
-function closeEditPopup() {
-    const editPopup = document.getElementById('editActivityPopup');
-    if (editPopup) {
-        editPopup.remove();
-    }
-}
-
-function deleteActivity(index) {
-    let activities = JSON.parse(localStorage.getItem('activities')) || [];
-    activities.splice(index, 1);
-    localStorage.setItem('activities', JSON.stringify(activities));
-    loadData();
-    populateActivitiesList();
-}
 
 // Initial load
 loadData();
