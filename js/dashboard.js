@@ -227,6 +227,11 @@ function openEditPopup(index) {
         const caloriesBurned = parseInt(document.getElementById('editCaloriesBurned').value);
         const activeMinutes = parseInt(document.getElementById('editActiveMinutes').value);
 
+        if (steps < 0 || caloriesBurned < 0 || activeMinutes < 0) {
+            alert("Please enter non-negative values for steps, calories burned, and active minutes.");
+            return;
+        }
+
         activities[index] = { ...activities[index], steps, caloriesBurned, activeMinutes };
         localStorage.setItem('activities', JSON.stringify(activities));
         loadData();
@@ -382,6 +387,11 @@ function openEditMealPopup(index) {
         const name = document.getElementById('editMealName').value;
         const calories = parseInt(document.getElementById('editMealCalories').value);
 
+        if (calories < 0) {
+            alert("Please enter a non-negative value for calories.");
+            return;
+        }
+
         meals[index] = { ...meals[index], name, calories };
         localStorage.setItem('meals', JSON.stringify(meals));
         loadData();
@@ -452,6 +462,12 @@ activityForm.addEventListener('submit', function (e) {
     const steps = parseInt(stepsInput.value);
     const caloriesBurned = parseInt(caloriesBurnedInput.value);
     const activeMinutes = parseInt(activeMinutesInput.value);
+
+    if (steps < 0 || caloriesBurned < 0 || activeMinutes < 0) {
+        alert("Please enter non-negative values for steps, calories burned, and active minutes.");
+        return;
+    }
+
     const activities = JSON.parse(localStorage.getItem('activities')) || [];
     activities.push({ steps, caloriesBurned, activeMinutes, date: new Date().toISOString() });
     localStorage.setItem('activities', JSON.stringify(activities));
@@ -463,6 +479,12 @@ nutritionForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const mealName = mealNameInput.value;
     const calories = parseInt(caloriesInput.value);
+
+    if (calories < 0) {
+        alert("Please enter a non-negative value for calories.");
+        return;
+    }
+
     const meals = JSON.parse(localStorage.getItem('meals')) || [];
     meals.push({ name: mealName, calories, date: new Date().toISOString() });
     localStorage.setItem('meals', JSON.stringify(meals));
